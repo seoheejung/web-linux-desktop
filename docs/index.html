@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <title>Web Linux Desktop 발표 자료</title>
+  <style>
+    :root {
+      --w: 1920;
+      --h: 1080;
+      --bg: #070b12;
+      --surface: #0f1724;
+      --surface2: #121d2c;
+      --line: rgba(255,255,255,.12);
+      --text: #f8fafc;
+      --sub: #b6c2d3;
+      --muted: #7f8da3;
+      --blue: #5ca8ff;
+      --cyan: #2ee6ff;
+      --green: #35d49b;
+      --yellow: #ffd166;
+      --red: #ff6b7a;
+      --shadow: 0 36px 90px rgba(0,0,0,.38);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(46,230,255,.12), transparent 28%),
+        radial-gradient(circle at 86% 15%, rgba(92,168,255,.14), transparent 32%),
+        linear-gradient(145deg, #070b12, #0c1220 54%, #06080e);
+      color: var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+      letter-spacing: -0.035em;
+    }
+
+    .viewport {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    /*
+      실제 표시 크기를 가진 래퍼
+      transform 대상의 원본 크기가 레이아웃 폭으로 남는 문제 방지
+    */
+    .stage-fit {
+      position: relative;
+      flex: 0 0 auto;
+      overflow: visible;
+    }
+
+    /*
+      1920 × 1080 발표 캔버스
+      래퍼 좌측 상단 기준 균일 축소
+    */
+    .stage {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: top left;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,.55);
+      background: var(--bg);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 84px 112px 76px;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(46,230,255,.12), transparent 30%),
+        radial-gradient(circle at 88% 22%, rgba(92,168,255,.13), transparent 34%),
+        linear-gradient(145deg, #080d16, #0e1624 58%, #070a11);
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      gap: 46px;
+    }
+
+    .slide.active > .footer {
+      margin-top: auto;
+      flex: 0 0 auto;
+    }
+
+    .slide.title.active > :first-child {
+      margin-block: auto;
+    }
+
+    .eyebrow {
+      font-size: 20px;
+      color: var(--cyan);
+      font-weight: 850;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 26px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: 114px;
+      line-height: .94;
+      letter-spacing: -.075em;
+      font-weight: 920;
+      max-width: 1460px;
+    }
+
+    h2 {
+      font-size: 72px;
+      line-height: 1.04;
+      letter-spacing: -.065em;
+      font-weight: 900;
+      max-width: 1500px;
+    }
+
+    h3 {
+      font-size: 34px;
+      line-height: 1.15;
+      font-weight: 840;
+      margin-bottom: 22px;
+    }
+
+    .mark { color: var(--cyan); }
+
+    .lead {
+      margin-top: 34px;
+      max-width: 1240px;
+      color: #cbd5e1;
+      font-size: 34px;
+      line-height: 1.42;
+      font-weight: 520;
+    }
+
+    .grid {
+      display: grid;
+      width: 100%;
+      gap: 28px;
+    }
+
+    .two { grid-template-columns: 1fr 1fr; }
+    .two-wide { grid-template-columns: 1.15fr .85fr; }
+    .three { grid-template-columns: repeat(3, 1fr); }
+    .four { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.042));
+      border-radius: 34px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .card.subtle {
+      box-shadow: none;
+      background: rgba(255,255,255,.045);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 520px;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .desktop-visual {
+      height: 410px;
+      border-radius: 38px;
+      border: 1px solid rgba(255,255,255,.13);
+      background:
+        linear-gradient(135deg, rgba(92,168,255,.28), rgba(46,230,255,.07)),
+        radial-gradient(circle at 48% 35%, rgba(255,255,255,.2), transparent 24%),
+        #0a1020;
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .window {
+      height: 100%;
+      border-radius: 28px;
+      background: rgba(5,10,20,.76);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 24px;
+    }
+
+    .window-top {
+      height: 34px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      margin-bottom: 22px;
+    }
+
+    .window-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      height: calc(100% - 56px);
+    }
+
+    .tile {
+      border-radius: 18px;
+      border: 1px solid rgba(46,230,255,.14);
+      background: rgba(46,230,255,.09);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 42px;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: 13px 18px;
+      color: #dbeafe;
+      background: rgba(255,255,255,.07);
+      font-size: 22px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .pill.ok {
+      color: #d1fae5;
+      background: rgba(53,212,155,.1);
+      border-color: rgba(53,212,155,.32);
+    }
+
+    .pill.warn {
+      color: #fff2c2;
+      background: rgba(255,209,102,.1);
+      border-color: rgba(255,209,102,.34);
+    }
+
+    .pill.bad {
+      color: #ffe4e7;
+      background: rgba(255,107,122,.1);
+      border-color: rgba(255,107,122,.34);
+    }
+
+    .list {
+      display: grid;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #e2e8f0;
+      font-size: 28px;
+      line-height: 1.36;
+    }
+
+    .list li {
+      position: relative;
+      display: block;
+      padding-left: 34px;
+    }
+
+    .list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .68em;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 20px rgba(46,230,255,.72);
+    }
+
+    .big {
+      font-size: 78px;
+      line-height: .94;
+      letter-spacing: -.06em;
+      font-weight: 920;
+      color: #fff;
+    }
+
+    .big-sub {
+      margin-top: 18px;
+      color: var(--sub);
+      font-size: 24px;
+      line-height: 1.38;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 24px;
+      line-height: 1.35;
+    }
+
+    th, td {
+      padding: 17px 8px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #eaf2ff;
+      font-weight: 850;
+    }
+
+    td { color: #cbd5e1; }
+    tr:last-child td { border-bottom: 0; }
+
+    code {
+      font-family: "Cascadia Code", "Consolas", monospace;
+      color: #bae6fd;
+      letter-spacing: -.02em;
+    }
+
+    .code {
+      font-family: "Cascadia Code", "Consolas", monospace;
+      white-space: pre-wrap;
+      font-size: 22px;
+      line-height: 1.52;
+      color: #dbeafe;
+      background: #050a13;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 30px;
+      padding: 32px;
+      overflow: hidden;
+    }
+
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr 72px 1fr 72px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .node {
+      min-height: 174px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 30px;
+      background: rgba(255,255,255,.055);
+      padding: 30px;
+      display: grid;
+      align-content: center;
+    }
+
+    .node strong {
+      display: block;
+      font-size: 38px;
+      line-height: 1.04;
+      margin-bottom: 12px;
+    }
+
+    .node span {
+      color: var(--sub);
+      font-size: 24px;
+      line-height: 1.35;
+    }
+
+    .arrow {
+      text-align: center;
+      color: var(--cyan);
+      font-size: 58px;
+      font-weight: 900;
+    }
+
+    .phase-line {
+      display: grid;
+      gap: 20px;
+    }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 190px 1fr 140px;
+      gap: 22px;
+      align-items: center;
+      padding: 22px 26px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      background: rgba(255,255,255,.045);
+      font-size: 26px;
+    }
+
+    .phase strong {
+      color: #fff;
+      font-size: 30px;
+    }
+
+    .phase span { color: #cbd5e1; }
+
+    .phase em {
+      font-style: normal;
+      text-align: center;
+      padding: 11px 14px;
+      border: 1px solid rgba(53,212,155,.35);
+      background: rgba(53,212,155,.1);
+      color: #d1fae5;
+      border-radius: 999px;
+      font-size: 20px;
+      font-weight: 850;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 17px rgba(53,212,155,.72);
+    }
+
+    .status.ok { color: #d1fae5; }
+    .status.warn { color: #fff2c2; }
+    .status.warn::before { background: var(--yellow); box-shadow: 0 0 17px rgba(255,209,102,.72); }
+    .status.bad { color: #ffe4e7; }
+    .status.bad::before { background: var(--red); box-shadow: 0 0 17px rgba(255,107,122,.72); }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .check {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      background: rgba(255,255,255,.045);
+      padding: 24px;
+      min-height: 128px;
+    }
+
+    .check strong {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .check span {
+      color: var(--sub);
+      font-size: 22px;
+      line-height: 1.36;
+    }
+
+    .bars {
+      display: grid;
+      gap: 18px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 330px 1fr 130px 220px;
+      gap: 22px;
+      align-items: center;
+      color: #dbeafe;
+      font-size: 24px;
+    }
+
+    .bar {
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.095);
+      border: 1px solid rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 999px;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 21px;
+      line-height: 1.46;
+      margin-top: 28px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,.46);
+      font-size: 18px;
+      letter-spacing: .02em;
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      z-index: 30;
+    }
+
+    .controls {
+      position: fixed;
+      right: 24px;
+      bottom: 22px;
+      z-index: 40;
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls button {
+      width: 46px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    @media print {
+      html, body { overflow: visible; height: auto; }
+      .viewport { position: static; display: block; height: auto; overflow: visible; }
+      .stage-fit { width: 1920px !important; height: auto !important; }
+      .stage { position: static; transform: none !important; width: 1920px; height: auto; box-shadow: none; }
+      .slide { display: flex !important; position: relative; width: 1920px; height: 1080px; page-break-after: always; }
+      .controls, .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="stage-fit" id="stageFit">
+      <main class="stage" id="stage">
+
+      <section class="slide title active">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">WEB LINUX DESKTOP</div>
+            <h1>Windows에서 여는<br><span class="mark">Linux 데스크톱</span></h1>
+            <p class="lead">Docker Desktop 기반 Webtop 컨테이너로 KDE Plasma를 <br>브라우저에서 실행한 로컬 데스크톱 검증 프로젝트</p>
+            <div class="pill-row">
+              <span class="pill ok">Windows 11</span>
+              <span class="pill ok">Docker Desktop</span>
+              <span class="pill ok">WSL 2 Backend</span>
+              <span class="pill ok">KDE Plasma</span>
+            </div>
+          </div>
+          <div class="desktop-visual" aria-hidden="true">
+            <div class="window">
+              <div class="window-top"></div>
+              <div class="window-grid">
+                <div class="tile"></div><div class="tile"></div>
+                <div class="tile"></div><div class="tile"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>Web Linux Desktop</span><span>01 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">PROJECT FOCUS</div>
+          <h2>핵심 목표: Windows 유지, Linux GUI 접근</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>기존 방식 제거</h3>
+            <ul class="list">
+              <li>듀얼 부팅 제거</li>
+              <li>별도 Linux PC 제거</li>
+              <li>Hyper-V·VirtualBox VM 제거</li>
+              <li>사용자용 Ubuntu Desktop 별도 설치 제거</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>선택한 방식</h3>
+            <ul class="list">
+              <li>Docker Desktop WSL 2 백엔드 사용</li>
+              <li>LinuxServer.io Webtop 컨테이너 실행</li>
+              <li>Ubuntu KDE Plasma 환경 사용</li>
+              <li>Windows 브라우저 기반 접속</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>프로젝트 방향</span><span>02 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">SYSTEM FLOW</div>
+          <h2>실행 흐름</h2>
+        </header>
+        <div class="card">
+          <div class="arch">
+            <div class="node"><strong>Windows 11</strong><span>호스트 OS · 웹 브라우저</span></div>
+            <div class="arrow">→</div>
+            <div class="node"><strong>Docker Desktop</strong><span>WSL 2 Linux 컨테이너 환경</span></div>
+            <div class="arrow">→</div>
+            <div class="node"><strong>Webtop</strong><span>Ubuntu KDE · Selkies · NGINX</span></div>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card subtle">
+            <h3>브라우저 전달</h3>
+            <ul class="list">
+              <li>KDE Plasma 화면</li>
+              <li>키보드·마우스 입력</li>
+              <li>오디오 출력</li>
+              <li>파일 업로드·다운로드</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <h3>데이터 경로</h3>
+            <ul class="list">
+              <li><span><code>/config</code> — 사용자 홈과 KDE 설정</span></li>
+              <li><span><code>/workspace</code> — Windows·Linux 파일 공유</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>아키텍처</span><span>03 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">COMPOSE DESIGN</div>
+          <h2>단일 Compose 기반 실행 구성</h2>
+        </header>
+        <div class="grid two-wide">
+          <div class="code">image: lscr.io/linuxserver/webtop:ubuntu-kde
+container_name: web-linux-desktop
+
+environment:
+  TZ: Asia/Seoul
+  LC_ALL: ko_KR.UTF-8
+  CUSTOM_USER: ${WEBTOP_USER}
+  PASSWORD: ${WEBTOP_PASSWORD}
+  FILE_MANAGER_PATH: /workspace
+
+volumes:
+  - webtop_config:/config
+  - ./workspace:/workspace
+
+ports:
+  - "127.0.0.1:3001:3001"</div>
+          <div class="card">
+            <h3>구성 기준</h3>
+            <ul class="list">
+              <li>HTTPS 3001만 노출</li>
+              <li>Windows loopback 주소 한정</li>
+              <li>HTTP 3000 미노출</li>
+              <li>인증 정보 <code>.env</code> 분리</li>
+              <li>설정 데이터와 공유 파일 분리</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>Compose</span><span>04 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">SECURITY BASELINE</div>
+          <h2>로컬 실험 환경 보안 기준</h2>
+        </header>
+        <div class="grid three">
+          <div class="card"><div class="big">127.0.0.1</div><div class="big-sub">로컬 브라우저 접속 전용</div></div>
+          <div class="card"><div class="big">Basic</div><div class="big-sub">HTTP Basic 인증 적용</div></div>
+          <div class="card"><div class="big">No Root+</div><div class="big-sub">권한 확장 설정 미사용</div></div>
+        </div>
+        <div class="grid two">
+          <div class="card subtle">
+            <h3>적용</h3>
+            <div class="pill-row" style="margin-top:0">
+              <span class="pill ok">.env Git 제외</span>
+              <span class="pill ok">HTTPS 로컬 접속</span>
+              <span class="pill ok">named volume</span>
+              <span class="pill ok">bind mount 분리</span>
+            </div>
+          </div>
+          <div class="card subtle">
+            <h3>제외</h3>
+            <div class="pill-row" style="margin-top:0">
+              <span class="pill bad">privileged</span>
+              <span class="pill bad">Docker socket</span>
+              <span class="pill bad">seccomp:unconfined</span>
+              <span class="pill bad">GPU device</span>
+              <span class="pill bad">외부 공개</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>보안 기준</span><span>05 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">PHASED VERIFICATION</div>
+          <h2>Phase 단위 검증 구조</h2>
+        </header>
+        <div class="card">
+          <div class="phase-line">
+            <div class="phase"><strong>Phase 1</strong><span>프로젝트 초기 구성 · Compose · 환경 변수 템플릿 · Git 제외</span><em>완료</em></div>
+            <div class="phase"><strong>Phase 2</strong><span>Webtop 실행 · HTTPS 접속 · 인증 · KDE Plasma · Wayland 확인</span><em>완료</em></div>
+            <div class="phase"><strong>Phase 3</strong><span>Windows·Linux 파일 공유 · 한글 파일명 · 영속성 확인</span><em>완료</em></div>
+            <div class="phase"><strong>Phase 4</strong><span>사용성 · 파일 전송 · 오디오 · 자원 측정 · README 정리</span><em>완료</em></div>
+          </div>
+        </div>
+        <div class="footer"><span>진행 방식</span><span>06 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">AI-ASSISTED WORKFLOW</div>
+          <h2>Codex 활용 및 작업 통제</h2>
+        </header>
+        <div class="grid three">
+          <div class="card">
+            <h3>Codex 활용 범위</h3>
+            <ul class="list">
+              <li>프로젝트 파일과 Phase 문서 분석</li>
+              <li>Docker Compose 설정 작성 및 검토</li>
+              <li>검증 명령 실행과 로그 확인</li>
+              <li>작업 결과와 README 문서화</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>작업 통제 기준</h3>
+            <ul class="list">
+              <li>AGENTS.md 기반 작업 범위 제한</li>
+              <li>실제 파일·설정·로그 기준 판단</li>
+              <li>비밀값 파일 열람 금지</li>
+              <li>네트워크 접근 차단</li>
+              <li>검증 실패와 미확인 결과 유지</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>검증 역할 구분</h3>
+            <ul class="list">
+              <li>Codex — 설정·명령·로그 검증</li>
+              <li>사용자 — 브라우저·KDE 직접 검증</li>
+              <li>실제 결과 기준 완료 여부 판정</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>개발 및 검증 방식</span><span>07 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">RUNTIME VERIFICATION</div>
+          <h2>Webtop 실행 검증</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>이미지·컨테이너</h3>
+            <table>
+              <tr><th>항목</th><th>결과</th></tr>
+              <tr><td>이미지</td><td><code>lscr.io/linuxserver/webtop:ubuntu-kde</code></td></tr>
+              <tr><td>Repo digest</td><td><code>sha256:82dc3bb7...</code></td></tr>
+              <tr><td>Build version</td><td><code>dbe53151-ls172</code></td></tr>
+              <tr><td>컨테이너</td><td><code>web-linux-desktop</code></td></tr>
+              <tr><td>RestartCount</td><td><code>0</code></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>브라우저 접속</h3>
+            <table>
+              <tr><th>항목</th><th>결과</th></tr>
+              <tr><td>접속 주소</td><td><code>https://localhost:3001</code></td></tr>
+              <tr><td>HTTPS 응답</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>인증서 경고</td><td><span class="status warn">확인</span></td></tr>
+              <tr><td>HTTP Basic 인증</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>KDE Plasma 화면</td><td><span class="status ok">확인</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="footer"><span>Phase 2</span><span>08 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">DESKTOP SESSION</div>
+          <h2>Wayland 기반 KDE Plasma 세션 확인</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>핵심 프로세스</h3>
+            <div class="code">startwm_wayland.sh
+kwin_wayland
+plasmashell
+Xwayland
+selkies
+nginx
+pulseaudio</div>
+          </div>
+          <div class="card">
+            <h3>판정 기준</h3>
+            <ul class="list">
+              <li><span><code>kwin_wayland</code> 실행 확인</span></li>
+              <li>KDE Plasma shell 실행 확인</li>
+              <li>Xwayland는 Wayland 세션의 X11 호환 계층으로 구분</li>
+              <li>X11 폴백 근거 없음</li>
+              <li>컨테이너 AVX2 플래그 감지</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>세션 검증</span><span>09 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">FILE SHARING</div>
+          <h2>Windows·Linux 파일 공유 검증</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>양방향 파일 공유</h3>
+            <table>
+              <tr><th>방향</th><th>검증 파일</th><th>결과</th></tr>
+              <tr><td>Linux → Windows</td><td><code>linux-created.txt</code></td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Windows → Linux</td><td><code>windows-created.txt</code></td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Linux → Windows</td><td><code>리눅스-생성.txt</code></td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Windows → Linux</td><td><code>윈도우-생성.txt</code></td><td><span class="status ok">확인</span></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>유지 확인</h3>
+            <div class="matrix">
+              <div class="check"><strong>/config</strong><span>컨테이너 재시작·재생성 후 테스트 파일 유지</span></div>
+              <div class="check"><strong>/workspace</strong><span>컨테이너 재시작·재생성 후 공유 파일 유지</span></div>
+              <div class="check"><strong>한글 파일명</strong><span>Windows·Linux 양쪽 표시 확인</span></div>
+              <div class="check"><strong>KDE 설정</strong><span>바탕화면 설정 유지 확인</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>Phase 3</span><span>10 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">USABILITY</div>
+          <h2>브라우저 기반 데스크톱 사용성 검증</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>화면·입력</h3>
+            <table>
+              <tr><th>항목</th><th>검증 결과</th></tr>
+              <tr><td>가상 해상도</td><td><code>3840 × 2160</code> · 4K UHD</td></tr>
+              <tr><td>UI 스케일링</td><td><code>100%</code> · HiDPI 활성화</td></tr>
+              <tr><td>전체 화면</td><td><span class="status ok">진입·해제 확인</span></td></tr>
+              <tr><td>창 이동·크기 변경</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>영문·숫자·한글 입력</td><td><span class="status ok">확인</span></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>연동 기능</h3>
+            <table>
+              <tr><th>항목</th><th>검증 결과</th></tr>
+              <tr><td>한국어 UI·한글 파일명</td><td><span class="status ok">표시 확인</span></td></tr>
+              <tr><td>Windows → Webtop 클립보드</td><td><span class="status bad">실패</span></td></tr>
+              <tr><td>Webtop → Windows 클립보드</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Selkies 파일 업로드</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Selkies 파일 다운로드</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>Webtop 브라우저 오디오</td><td><span class="status ok">출력 확인</span></td></tr>
+              <tr><td>컨테이너 stop/start</td><td><span class="status ok">재접속 확인</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="footer"><span>Phase 4 사용성</span><span>11 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">RESOURCE MEASUREMENT</div>
+          <h2>상태별 컨테이너 자원 사용량</h2>
+        </header>
+        <div class="card">
+          <div class="bars">
+            <div class="bar-row"><strong>KDE 초기 화면</strong><div class="bar"><i style="width:9.4%"></i></div><span>11.94%</span><span>1.185GiB</span></div>
+            <div class="bar-row"><strong>터미널 1개</strong><div class="bar"><i style="width:17%"></i></div><span>21.50%</span><span>1.22GiB</span></div>
+            <div class="bar-row"><strong>브라우저 1개</strong><div class="bar"><i style="width:36.3%"></i></div><span>46.01%</span><span>1.505GiB</span></div>
+            <div class="bar-row"><strong>Dolphin 1개</strong><div class="bar"><i style="width:18.9%"></i></div><span>23.95%</span><span>1.26GiB</span></div>
+            <div class="bar-row"><strong>브라우저 동영상·오디오</strong><div class="bar"><i style="width:100%"></i></div><span>126.67%</span><span>1.551GiB</span></div>
+          </div>
+          <p class="footnote">기준: <code>docker stats web-linux-desktop</code> 순간 측정값 · 모든 측정 <code>wayland</code> · MEM LIMIT <code>9.711GiB</code> · 평균값·최대값 계산 없음 · 임의 성능 판정 없음</p>
+        </div>
+        <div class="footer"><span>자원 측정</span><span>12 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">OPERATION</div>
+          <h2>실행·중지·재실행 명령</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>운영 명령</h3>
+            <div class="code">docker compose up -d
+docker compose ps
+docker compose logs --tail 200 webtop
+
+docker compose stop
+docker compose start
+docker compose restart webtop
+
+docker compose down
+docker compose up -d</div>
+          </div>
+          <div class="card">
+            <h3>재실행 검증</h3>
+            <table>
+              <tr><th>항목</th><th>결과</th></tr>
+              <tr><td>시작 전 상태</td><td><code>Up</code></td></tr>
+              <tr><td>RestartCount</td><td><code>0</code></td></tr>
+              <tr><td><code>docker compose stop</code></td><td><span class="status ok">확인</span></td></tr>
+              <tr><td><code>docker compose start</code></td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>HTTPS 재접속</td><td><span class="status ok">확인</span></td></tr>
+              <tr><td>재실행 후 Session type</td><td><code>wayland</code></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="footer"><span>운영</span><span>13 / 15</span></div>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="eyebrow">BOUNDARY</div>
+          <h2>검증 범위와 한계</h2>
+        </header>
+        <div class="grid two">
+          <div class="card">
+            <h3>확인된 한계</h3>
+            <ul class="list">
+              <li>최초 HTTPS 접속 시 자체 서명 인증서 경고</li>
+              <li>클립보드 양방향 동작 불완전</li>
+              <li>Linux 내부 입력기 프레임워크 미확인</li>
+              <li>Discover PackageKit 권한 오류</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>범위 제외</h3>
+            <ul class="list">
+              <li>BIOS·UEFI 부팅</li>
+              <li>GRUB·initramfs 복구</li>
+              <li>독립 Linux 커널 관리</li>
+              <li>GPU 가속과 외부 공개</li>
+              <li>대규모 파일 I/O 성능 검증</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer"><span>한계</span><span>14 / 15</span></div>
+      </section>
+
+      <section class="slide title">
+        <div>
+          <div class="eyebrow">CONCLUSION</div>
+          <h1>Windows 환경에서 <br><span class="mark">Linux 데스크톱 사용 흐름 </span> <br>검증 완료</h1>
+          <p class="lead">설치형 Linux 데스크톱 대신 Docker Desktop 기반 컨테이너 데스크톱을 실행하고, <br>브라우저에서 KDE Plasma 조작·파일 공유·데이터 유지·자원 측정까지 검증</p>
+          <div class="pill-row">
+            <span class="pill ok">Windows 유지</span>
+            <span class="pill ok">KDE Plasma 접속</span>
+            <span class="pill ok">파일 공유 검증</span>
+            <span class="pill ok">영속성 검증</span>
+            <span class="pill ok">운영 명령 정리</span>
+          </div>
+        </div>
+        <div class="footer"><span>결론</span><span>15 / 15</span></div>
+      </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="controls">
+    <button id="prev" aria-label="previous">‹</button>
+    <button id="next" aria-label="next">›</button>
+  </div>
+
+  <script>
+    const DESIGN_W = 1920;
+    const DESIGN_H = 1080;
+    const stage = document.getElementById('stage');
+    const stageFit = document.getElementById('stageFit');
+    const slides = [...document.querySelectorAll('.slide')];
+    const progress = document.getElementById('progress');
+    let current = 0;
+
+    function getViewportSize() {
+      const visualViewport = window.visualViewport;
+
+      return {
+        width: visualViewport?.width || document.documentElement.clientWidth || window.innerWidth,
+        height: visualViewport?.height || document.documentElement.clientHeight || window.innerHeight
+      };
+    }
+
+    function resize() {
+      const { width, height } = getViewportSize();
+      const scale = Math.min(width / DESIGN_W, height / DESIGN_H);
+
+      stageFit.style.width = `${DESIGN_W * scale}px`;
+      stageFit.style.height = `${DESIGN_H * scale}px`;
+      stage.style.transform = `scale(${scale})`;
+    }
+
+    function show(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      const hash = `#${current + 1}`;
+      if (location.hash !== hash) history.replaceState(null, '', hash);
+    }
+
+    document.getElementById('prev').addEventListener('click', () => show(current - 1));
+    document.getElementById('next').addEventListener('click', () => show(current + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
+        event.preventDefault();
+        show(current + 1);
+      }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) {
+        event.preventDefault();
+        show(current - 1);
+      }
+      if (event.key === 'Home') show(0);
+      if (event.key === 'End') show(slides.length - 1);
+      if (event.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+    });
+
+    window.addEventListener('resize', resize);
+    window.visualViewport?.addEventListener('resize', resize);
+    window.visualViewport?.addEventListener('scroll', resize);
+
+    const start = Number((location.hash || '').replace('#', ''));
+    resize();
+    show(Number.isFinite(start) && start > 0 ? start - 1 : 0);
+  </script>
+</body>
+</html>
