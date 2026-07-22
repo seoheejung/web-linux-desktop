@@ -1,0 +1,23 @@
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop:ubuntu-kde
+    container_name: web-linux-desktop
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Asia/Seoul
+      LC_ALL: ko_KR.UTF-8
+      TITLE: Web Linux Desktop
+      CUSTOM_USER: ${WEBTOP_USER}
+      PASSWORD: ${WEBTOP_PASSWORD}
+      FILE_MANAGER_PATH: /workspace
+    volumes:
+      - webtop_config:/config
+      - ./workspace:/workspace
+    ports:
+      - "127.0.0.1:3001:3001"
+    shm_size: "1gb"
+    restart: unless-stopped
+
+volumes:
+  webtop_config:
