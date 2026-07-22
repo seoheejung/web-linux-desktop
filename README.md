@@ -93,15 +93,12 @@ web-linux-desktop/
 ├── .gitignore
 ├── README.md
 ├── docs/
+│   ├── index.html
 │   ├── phase1.md
 │   ├── phase2.md
 │   ├── phase3.md
 │   └── phase4.md
 ├── images/
-│   ├── phase2.png
-│   ├── phase3-1.png
-│   ├── phase3-2.png
-│   └── phase4.png
 └── workspace/
     └── .gitkeep
 ```
@@ -360,7 +357,7 @@ Webtop의 공식 최소 CPU·메모리 요구량은 확인되지 않았습니다
 | Phase 3 | Linux 데스크톱 사용 및 파일 공유 | 완료 |
 | Phase 4 | 사용성·자원 검증 및 문서화 | 완료 |
 
-상세 작업 기준과 검증 기록:
+## Phase 지시서
 
 - [Phase 1 — 프로젝트 초기 구성](./docs/phase1.md)
 - [Phase 2 — Webtop 실행 및 브라우저 접속](./docs/phase2.md)
